@@ -25,4 +25,4 @@ jobs:
       - name: Install project
         run: uv sync --frozen --python ${{ matrix.python-version }} --extra torch --extra dev
       - name: Run tests
-        run: uv run --frozen pytest -q
+        run: uv run --frozen --python ${{ matrix.python-version }} --extra torch --extra dev pytest -q
