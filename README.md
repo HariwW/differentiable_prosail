@@ -1,6 +1,5 @@
 # Differentiable PROSAIL
 
-[![tests](https://github.com/HariwW/differentiable_prosail/actions/workflows/main.yml/badge.svg)](https://github.com/HariwW/differentiable_prosail/actions/workflows/main.yml)
 
 A batched PyTorch implementation of the PROSPECT + FourSAIL radiative transfer
 model, with automatic differentiation and Sentinel-2 spectral response
