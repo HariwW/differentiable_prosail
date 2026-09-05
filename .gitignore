@@ -190,3 +190,7 @@ poetry.toml
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode
+
+# Local generated artifacts
+.pytest-tmp/
+output/

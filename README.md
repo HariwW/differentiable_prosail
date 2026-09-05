@@ -1,3 +1,34 @@
+# Differentiable PROSAIL
+
+[![tests](https://github.com/HariwW/differentiable_prosail/actions/workflows/main.yml/badge.svg)](https://github.com/HariwW/differentiable_prosail/actions/workflows/main.yml)
+
+A batched PyTorch implementation of the PROSPECT + FourSAIL radiative transfer
+model, with automatic differentiation and Sentinel-2 spectral response
+integration. The original NumPy API remains available as `prosail`; the
+differentiable API lives in `prosail.torch`.
+
+This repository is derived from J. Gomez-Dans'
+[NumPy PROSAIL implementation](https://github.com/jgomezdans/prosail). The
+PyTorch implementation follows the MMDC/CESBIO
+[`torchport` branch](https://src.koda.cnrs.fr/mmdc/prosailpython/-/tree/torchport)
+used by the PROSAIL-VAE work.
+
+## Install and test
+
+```powershell
+git clone https://github.com/HariwW/differentiable_prosail.git
+cd differentiable_prosail
+uv sync --extra torch --extra demo --extra dev
+uv run --extra torch pytest -q
+```
+
+Python 3.10–3.12 is supported. Importing plain `prosail` uses the original
+NumPy implementation; importing `prosail.torch` opts into automatic
+differentiation and batched tensor execution.
+
+<details>
+<summary>Original NumPy package documentation</summary>
+
 <p><img src="https://www.nceo.ac.uk/wp-content/themes/nceo/assets/images/logos/img_logo_purple.svg" align="left" />
 
 <img src="http://www.esa.int/esalogo/images/logotype/img_colorlogo_darkblue.gif" scale="20%" align="right" />
@@ -10,7 +41,7 @@
 
 
 
-# PROSAIL Python Bindings
+## PROSAIL Python Bindings
 
 #### J Gomez-Dans (NCEO & UCL) ``j.gomez-dans@ucl.ac.uk``
 
@@ -80,6 +111,79 @@ Once you import the bindings into the namespace with
     import prosail
     
 you can then run SAIL (using prescribed leaf reflectance and transmittance spectra, as well as canopy structure/soil parameters), PROSPECT and both (e.g. use PROSPECT to provide the spectral leaf optical properties).
+
+</details>
+
+## Differentiable PyTorch implementation
+
+This repository also includes an opt-in PyTorch port under `prosail.torch`. It
+supports automatic differentiation, batches of parameter sets, CPU/GPU tensor
+execution, PROSPECT-5/D/PRO, FourSAIL, and differentiable conversion of the full
+400-2500 nm spectrum to ten Sentinel-2 bands.
+
+Install the PyTorch extra with uv:
+
+```powershell
+uv sync --extra torch --extra demo --extra dev
+```
+
+Run the differentiability example:
+
+```powershell
+uv run --extra torch python examples/differentiable_prosail.py
+```
+
+Minimal usage:
+
+```python
+import torch
+import prosail.torch as prosail
+
+lai = torch.tensor([1.0, 3.0, 5.0], requires_grad=True)
+spectra = prosail.run_prosail(
+    n=1.5,
+    cab=40.0,
+    car=8.0,
+    cbrown=0.0,
+    cw=0.015,
+    cm=0.009,
+    lai=lai,
+    lidfa=50.0,
+    hspot=0.1,
+    tts=30.0,
+    tto=0.0,
+    psi=0.0,
+    rsoil=1.0,
+    psoil=0.5,
+)
+sentinel2 = prosail.Sentinel2Sensor()(spectra)
+sentinel2.sum().backward()
+print(spectra.shape, sentinel2.shape, lai.grad)
+```
+
+The PyTorch implementation is derived from the `torchport` branch of the
+[MMDC/CESBIO prosailpython project](https://src.koda.cnrs.fr/mmdc/prosailpython),
+the differentiable dependency used by the PROSAIL-VAE code associated with
+Zerah et al. (2024). The public wrapper keeps the argument order of this
+repository's original NumPy API. The batch-capable differentiable leaf-angle
+distribution is currently `typelidf=2`.
+
+## Sentinel-2 data provenance
+
+[`prosail/torch/data/sentinel2.rsr`](prosail/torch/data/sentinel2.rsr) is copied
+from the MMDC/CESBIO
+[`prosailvae` repository](https://src.koda.cnrs.fr/mmdc/prosailvae/-/blob/main/data/sentinel2.rsr),
+where it first appears in commit
+[`2e5a9be5`](https://src.koda.cnrs.fr/mmdc/prosailvae/-/commit/2e5a9be5573c0cb664688d12e38a19544f5374bd).
+It contains wavelength in micrometres, solar irradiance, and the relative
+spectral response for the 13 Sentinel-2 MSI bands. It is retained verbatim
+(apart from line-ending normalization) to reproduce the paper's processing.
+
+This table should not be assumed to be the latest official spacecraft-specific
+S2A, S2B, or S2C response file. For instrument-calibration work, obtain the
+current response functions from the
+[Copernicus Sentinel-2 technical documentation](https://sentiwiki.copernicus.eu/web/s2-documents)
+and state the satellite and response-function version used.
 
 ### `run_sail`
 

@@ -1,8 +1,8 @@
 import numpy as np
 import os
+from shutil import copytree
 import prosail
 from pytest import fixture
-from distutils import dir_util
 
 
 @fixture
@@ -15,7 +15,7 @@ def datadir(tmpdir, request):
     filename = request.module.__file__
     test_dir = os.path.dirname(filename)
     data_dir = os.path.join(test_dir, "data")
-    dir_util.copy_tree(data_dir, str(tmpdir))
+    copytree(data_dir, str(tmpdir), dirs_exist_ok=True)
 
     def getter(filename, as_str=True):
         filepath = tmpdir.join(filename)

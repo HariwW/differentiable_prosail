@@ -1,1 +1,3 @@
 recursive-include prosail/ *.txt
+recursive-include prosail/torch/data *.rsr
+include LICENSE.txt

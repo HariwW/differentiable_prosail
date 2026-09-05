@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "differentiable-prosail"
+version = "0.1.0"
+description = "Batched, differentiable PyTorch implementation of PROSAIL with Sentinel-2 spectral integration"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = "GPL-3.0-only"
+license-files = ["LICENSE.txt"]
+authors = [
+  { name = "J Gomez-Dans", email = "j.gomez-dans@ucl.ac.uk" },
+]
+maintainers = [{ name = "HariwW" }]
+keywords = ["PROSAIL", "PROSPECT", "SAIL", "PyTorch", "Sentinel-2", "remote sensing"]
+dependencies = [
+  "numba>=0.59,<0.68",
+  "numpy>=1.26,<3",
+  "scipy>=1.11,<2",
+]
+
+[project.urls]
+Repository = "https://github.com/HariwW/differentiable_prosail"
+"Original NumPy implementation" = "https://github.com/jgomezdans/prosail"
+"Reference PyTorch port" = "https://src.koda.cnrs.fr/mmdc/prosailpython/-/tree/torchport"
+
+[project.optional-dependencies]
+demo = ["matplotlib>=3.8,<4"]
+dev = ["pytest>=8,<10"]
+torch = ["torch>=2.5,<3"]
+
+[tool.setuptools]
+packages = ["prosail", "prosail.torch", "prosail.torch.data"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+prosail = ["*.txt"]
+"prosail.torch.data" = ["*.rsr"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
